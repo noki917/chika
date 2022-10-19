@@ -1,6 +1,7 @@
 var code2count_all = [];
 var code2count_school = [];
 var code2count = [];
+var school_exist=[];
 var circleMarkerOptions = {
     radius: 5,
     color: '#ff0000'
@@ -13,7 +14,7 @@ var circleMarkerOptions2 = {
 function meshPopup(feature,layer){
   //console.log(feature.properties.MESH_ID);
   var mesh_id = feature.properties.MESH_ID;
-  var city_code = feature.properties.CITY_CODE;
+  var city_code = feature.properties.SHICODE;
   var content = mesh_id+":"+city_code;
   layer.bindPopup(content);
 
@@ -21,41 +22,40 @@ function meshPopup(feature,layer){
 
 function newPopup(layer){
   var mesh_id = layer.feature.properties.MESH_ID;
-  var city_code = layer.feature.properties.CITY_CODE;
+  var city_code = layer.feature.properties.SHICODE;
   var count = code2count[mesh_id];
   var content = mesh_id+":"+city_code + ":" + count;
   return content;
 };
 
-function myPoint(feature,latlng){
-   var kakaku=feature.properties.L01_006
-   var name = feature.properties.L01_024;
-   var dep = feature.properties.L01_023;
-   var type = feature.properties.L01_022;
-   var mesh_id = getMeshId(latlng);
-   //console.log(latlng);
-   var content = name + ":<br>" + dep + ":<br>" +kakaku+"円/m2:<br>"+ mesh_id;
-   x = L.circleMarker(latlng,circleMarkerOptions).bindPopup(content);
-   return x;
-};
 
-function myPoint1(feature,latlng){
-   var name = feature.properties.P29_005;
-   var dep = feature.properties.P29_004;
-   var type = feature.properties.P29_001;
+
+function schoolPoint(feature,latlng){
+ 
+   var name = feature.name;
+   var jusho = feature.adress;
    var mesh_id = getMeshId(latlng);
    //console.log(latlng);
-   var content = name + ":<br>" + dep + ":<br>" + mesh_id;
+   var content = name + ":<br>"+jusho+":<br>meshID:"+ mesh_id;
+   
    x = L.circleMarker(latlng,circleMarkerOptions2).bindPopup(content);
    return x;
 };
 
-function onlyschool(feature){
-   switch (feature.properties.L01_022) {
-        case "1": return true;
-        default: return false;
-   }
+function chikaPoint(feature,latlng){
+   var kakaku=feature.price;
+   var name = feature.adress;
+  var sum=feature.sum_InMesh;
+   var mesh_id = getMeshId(latlng);
+   //console.log(latlng);
+   var content = name + ":<br>"   +kakaku+"円/m2:<br>meshID:"+ mesh_id+":<br>メッシュ内の学校の数:"+sum+"校";
+  
+
+   x = L.circleMarker(latlng,circleMarkerOptions).bindPopup(content);
+   return x;
+
 };
+
 
 function newStyle_1 (feature){
     var mesh_id = feature.properties.MESH_ID;
@@ -154,17 +154,18 @@ var map = L.map('map',
 });
  
 L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png').addTo(map);
-var popLayer = L.geoJson(population_chiba_1km_mesh, {
+var popLayer = L.geoJson(tokyoMesh, {
    onEachFeature: meshPopup
 });
 popLayer.addTo(map);
 
-var chikaLayer = L.geoJson(chika_data,{
-    pointToLayer: myPoint,
+var chikaLayer = L.geoJson(chika_data4,{
+    pointToLayer: chikaPoint,
     onEachFeature: count_1
 });
-var schoolLayer = L.geoJson(schools_chiba,{
-   pointToLayer: myPoint1,
+var schoolLayer = L.geoJson(schools_Tokyo,{
+   
+   pointToLayer: schoolPoint,
    onEachFeature: count_1
 });
 
